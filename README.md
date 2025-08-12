@@ -280,7 +280,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Contact
 
-**Your Name** - [your.email@example.com](mailto:your.email@example.com)
+**Your Name** - [torres.ros@northeastern.edu](mailto:torres.ros@northeastern.edu)
 
 **Project Link**: [https://github.com/yourusername/education-ml-pipeline](https://github.com/yourusername/education-ml-pipeline)
 
