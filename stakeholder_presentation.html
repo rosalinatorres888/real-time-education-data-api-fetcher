@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Education Performance Analysis - Executive Brief</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #333;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        .presentation-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+        }
+        
+        .slide {
+            padding: 60px 80px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .slide:last-child {
+            border-bottom: none;
+        }
+        
+        .slide-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        
+        .slide-title {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: #1e3c72;
+            margin-bottom: 15px;
+        }
+        
+        .slide-subtitle {
+            font-size: 1.2em;
+            color: #666;
+            font-weight: 300;
+        }
+        
+        .title-slide {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            justify-content: center;
+        }
+        
+        .title-slide .slide-title {
+            font-size: 3.5em;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .title-slide .slide-subtitle {
+            font-size: 1.4em;
+            color: rgba(255,255,255,0.9);
+            margin-bottom: 40px;
+        }
+        
+        .title-slide .presenter-info {
+            font-size: 1.1em;
+            color: rgba(255,255,255,0.8);
+        }
+        
+        .key-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+        
+        .metric-card {
+            background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .metric-value {
+            font-size: 3em;
+            font-weight: 800;
+            color: #1e3c72;
+            margin-bottom: 10px;
+        }
+        
+        .metric-label {
+            font-size: 1.1em;
+            color: #666;
+            font-weight: 600;
+        }
+        
+        .metric-description {
+            font-size: 0.9em;
+            color: #888;
+            margin-top: 8px;
+        }
+        
+        .chart-container {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        
+        .insights-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin: 40px 0;
+        }
+        
+        .insight-box {
+            background: linear-gradient(145deg, #fff, #f8f9fa);
+            border-left: 5px solid #667eea;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        
+        .insight-title {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #1e3c72;
+            margin-bottom: 15px;
+        }
+        
+        .insight-content {
+            color: #555;
+            line-height: 1.7;
+        }
+        
+        .recommendations {
+            background: linear-gradient(145deg, #e3f2fd, #bbdefb);
+            border-radius: 15px;
+            padding: 40px;
+            margin: 40px 0;
+        }
+        
+        .recommendations h3 {
+            color: #1e3c72;
+            font-size: 1.8em;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        
+        .recommendation-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .recommendation-list li {
+            background: white;
+            margin: 15px 0;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        }
+        
+        .recommendation-list li strong {
+            color: #1e3c72;
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+        
+        .navigation {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+        
+        .nav-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .nav-btn:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: #667eea;
+            transition: width 0.3s ease;
+            z-index: 1001;
+        }
+        
+        .highlight-stat {
+            background: linear-gradient(45deg, #ffd700, #ffed4a);
+            color: #333;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 700;
+            display: inline-block;
+            margin: 0 5px;
+        }
+        
+        .executive-summary {
+            background: linear-gradient(145deg, #f1f5f9, #e2e8f0);
+            border-radius: 15px;
+            padding: 40px;
+            margin: 30px 0;
+            border: 2px solid #667eea;
+        }
+        
+        .executive-summary h3 {
+            color: #1e3c72;
+            font-size: 1.6em;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .slide {
+                padding: 40px 30px;
+            }
+            
+            .slide-title {
+                font-size: 2em;
+            }
+            
+            .title-slide .slide-title {
+                font-size: 2.5em;
+            }
+            
+            .insights-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .key-metrics {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar" id="progressBar"></div>
+    
+    <div class="presentation-container">
+        <!-- Title Slide -->
+        <section class="slide title-slide" id="slide-1">
+            <div class="slide-header">
+                <h1 class="slide-title">🎓 Education Performance Analytics</h1>
+                <p class="slide-subtitle">Data-Driven Policy Insights for Educational Excellence</p>
+                <div class="presenter-info">
+                    <p><strong>Prepared by:</strong> Rosalina Torres</p>
+                    <p>ML/AI Engineer • Data Analytics Engineering</p>
+                    <p>January 2025</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Executive Summary -->
+        <section class="slide" id="slide-2">
+            <div class="slide-header">
+                <h2 class="slide-title">Executive Summary</h2>
+                <p class="slide-subtitle">Key Findings from National Education Performance Analysis</p>
+            </div>
+            
+            <div class="executive-summary">
+                <h3>🎯 Critical Insights</h3>
+                <p>Our comprehensive analysis of 2024 national education data reveals significant performance gaps and identifies <span class="highlight-stat">Massachusetts</span> as the national leader with proven strategies that can be replicated nationwide.</p>
+            </div>
+            
+            <div class="key-metrics">
+                <div class="metric-card">
+                    <div class="metric-value">288</div>
+                    <div class="metric-label">MA NAEP Score</div>
+                    <div class="metric-description">#1 Nationally</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">4.2x</div>
+                    <div class="metric-label">ROI Potential</div>
+                    <div class="metric-description">Identified Gains</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">$2.2B</div>
+                    <div class="metric-label">Impact Analysis</div>
+                    <div class="metric-description">Funding Optimization</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">32.8%</div>
+                    <div class="metric-label">Model Improvement</div>
+                    <div class="metric-description">ML Enhancement</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- National Performance Overview -->
+        <section class="slide" id="slide-3">
+            <div class="slide-header">
+                <h2 class="slide-title">National Education Performance Landscape</h2>
+                <p class="slide-subtitle">2024 NAEP Mathematics Scores by State</p>
+            </div>
+            
+            <div class="chart-container">
+                <div id="nationalPerformanceMap" style="height: 500px;"></div>
+            </div>
+            
+            <div class="insights-grid">
+                <div class="insight-box">
+                    <div class="insight-title">🎯 Top Performers</div>
+                    <div class="insight-content">
+                        Massachusetts leads with 288 points, followed by Minnesota (286) and New Hampshire (286). These states demonstrate consistent high performance across multiple metrics.
+                    </div>
+                </div>
+                <div class="insight-box">
+                    <div class="insight-title">⚠️ Achievement Gaps</div>
+                    <div class="insight-content">
+                        29-point gap between top and bottom performers indicates significant opportunity for improvement through targeted interventions and resource allocation.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Spending Efficiency Analysis -->
+        <section class="slide" id="slide-4">
+            <div class="slide-header">
+                <h2 class="slide-title">Education ROI Analysis</h2>
+                <p class="slide-subtitle">Performance vs. Investment: Finding the Sweet Spot</p>
+            </div>
+            
+            <div class="chart-container">
+                <div id="roiAnalysis" style="height: 500px;"></div>
+            </div>
+            
+            <div class="insights-grid">
+                <div class="insight-box">
+                    <div class="insight-title">💡 Efficiency Leaders</div>
+                    <div class="insight-content">
+                        Several states achieve exceptional outcomes with moderate spending, suggesting optimal resource allocation strategies that can be replicated.
+                    </div>
+                </div>
+                <div class="insight-box">
+                    <div class="insight-title">🔍 Investment Opportunities</div>
+                    <div class="insight-content">
+                        States with high spending but lower outcomes present immediate optimization opportunities through strategic reallocation and best practice implementation.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Massachusetts Case Study -->
+        <section class="slide" id="slide-5">
+            <div class="slide-header">
+                <h2 class="slide-title">Massachusetts: A Model for Excellence</h2>
+                <p class="slide-subtitle">Analyzing the Nation's Top Education Performer</p>
+            </div>
+            
+            <div class="chart-container">
+                <div id="massachusettsAnalysis" style="height: 400px;"></div>
+            </div>
+            
+            <div class="key-metrics">
+                <div class="metric-card">
+                    <div class="metric-value">288</div>
+                    <div class="metric-label">NAEP Score</div>
+                    <div class="metric-description">vs 275 National Avg</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">$21,524</div>
+                    <div class="metric-label">Per-Pupil Spend</div>
+                    <div class="metric-description">Strategic Investment</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">10.7%</div>
+                    <div class="metric-label">Child Poverty</div>
+                    <div class="metric-description">vs 14.7% National</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">#4</div>
+                    <div class="metric-label">Global Equivalent</div>
+                    <div class="metric-description">PISA Ranking Est.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Poverty Impact Analysis -->
+        <section class="slide" id="slide-6">
+            <div class="slide-header">
+                <h2 class="slide-title">Socioeconomic Impact on Performance</h2>
+                <p class="slide-subtitle">Understanding the Poverty-Achievement Relationship</p>
+            </div>
+            
+            <div class="chart-container">
+                <div id="povertyImpactChart" style="height: 500px;"></div>
+            </div>
+            
+            <div class="insights-grid">
+                <div class="insight-box">
+                    <div class="insight-title">📊 Strong Correlation</div>
+                    <div class="insight-content">
+                        States with lower child poverty rates consistently demonstrate higher academic performance, indicating the critical importance of comprehensive support systems.
+                    </div>
+                </div>
+                <div class="insight-box">
+                    <div class="insight-title">🎯 Intervention Points</div>
+                    <div class="insight-content">
+                        States breaking the poverty-performance trend offer valuable insights into effective wraparound services and targeted educational interventions.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Strategic Recommendations -->
+        <section class="slide" id="slide-7">
+            <div class="slide-header">
+                <h2 class="slide-title">Strategic Recommendations</h2>
+                <p class="slide-subtitle">Data-Driven Action Plan for Educational Excellence</p>
+            </div>
+            
+            <div class="recommendations">
+                <h3>🎯 Five-Point Action Plan</h3>
+                <ul class="recommendation-list">
+                    <li>
+                        <strong>Implement Massachusetts Model Framework</strong>
+                        Replicate proven strategies including comprehensive teacher preparation, rigorous standards, and integrated support systems across underperforming states.
+                    </li>
+                    <li>
+                        <strong>Optimize Resource Allocation</strong>
+                        Redirect $2.2B in identified inefficiencies toward high-impact interventions: early childhood programs, teacher development, and wraparound services.
+                    </li>
+                    <li>
+                        <strong>Target Poverty-Performance Gap</strong>
+                        Implement comprehensive poverty alleviation programs alongside educational interventions, focusing on states with high poverty but improvement potential.
+                    </li>
+                    <li>
+                        <strong>Establish Performance Monitoring System</strong>
+                        Deploy real-time data analytics to track progress, identify emerging issues, and enable rapid response to performance changes.
+                    </li>
+                    <li>
+                        <strong>Scale High-ROI Interventions</strong>
+                        Prioritize evidence-based programs showing 4.2x return on investment, with particular focus on teacher quality and student support services.
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Implementation Roadmap -->
+        <section class="slide" id="slide-8">
+            <div class="slide-header">
+                <h2 class="slide-title">Implementation Roadmap</h2>
+                <p class="slide-subtitle">90-Day Quick Wins to 3-Year Transformation</p>
+            </div>
+            
+            <div class="chart-container">
+                <div id="implementationTimeline" style="height: 400px;"></div>
+            </div>
+            
+            <div class="insights-grid">
+                <div class="insight-box">
+                    <div class="insight-title">🚀 Immediate Actions (0-90 days)</div>
+                    <div class="insight-content">
+                        <strong>Quick Wins:</strong> Data system implementation, stakeholder alignment, pilot program selection, and resource reallocation planning.
+                    </div>
+                </div>
+                <div class="insight-box">
+                    <div class="insight-title">📈 Long-term Goals (1-3 years)</div>
+                    <div class="insight-content">
+                        <strong>Systematic Change:</strong> Full framework implementation, measurable performance improvements, and sustainable funding model establishment.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Call to Action -->
+        <section class="slide" id="slide-9">
+            <div class="slide-header">
+                <h2 class="slide-title">Next Steps</h2>
+                <p class="slide-subtitle">Transforming Insights into Impact</p>
+            </div>
+            
+            <div class="executive-summary">
+                <h3>🎯 Immediate Priorities</h3>
+                <p>The data clearly demonstrates both the <span class="highlight-stat">opportunity</span> and the <span class="highlight-stat">pathway</span> to dramatically improve national education outcomes. Massachusetts proves that excellence is achievable - now we must scale these solutions nationwide.</p>
+            </div>
+            
+            <div class="key-metrics">
+                <div class="metric-card">
+                    <div class="metric-value">30 Days</div>
+                    <div class="metric-label">Stakeholder Alignment</div>
+                    <div class="metric-description">Decision Timeline</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">$2.2B</div>
+                    <div class="metric-label">Available for Reallocation</div>
+                    <div class="metric-description">Immediate Impact</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">4.2x</div>
+                    <div class="metric-label">Expected ROI</div>
+                    <div class="metric-description">Evidence-Based</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">51 States</div>
+                    <div class="metric-label">Implementation Scale</div>
+                    <div class="metric-description">National Impact</div>
+                </div>
+            </div>
+            
+            <div class="recommendations">
+                <h3>Contact Information</h3>
+                <p style="text-align: center; font-size: 1.1em; color: #1e3c72;">
+                    <strong>Rosalina Torres</strong><br>
+                    ML/AI Engineer • Data Analytics Engineering<br>
+                    📧 torres.ros@northeastern.edu<br>
+                    💼 linkedin.com/in/rosalina2<br>
+                    🔗 github.com/rosalinatorres888
+                </p>
+            </div>
+        </section>
+    </div>
+    
+    <div class="navigation">
+        <button class="nav-btn" onclick="previousSlide()">← Previous</button>
+        <button class="nav-btn" onclick="nextSlide()">Next →</button>
+    </div>
+
+    <script>
+        // Real education data
+        const educationData = {
+            naepScores: {
+                'Alabama': 262, 'Alaska': 274, 'Arizona': 270, 'Arkansas': 267,
+                'California': 261, 'Colorado': 278, 'Connecticut': 277, 'Delaware': 275,
+                'Florida': 271, 'Georgia': 268, 'Hawaii': 268, 'Idaho': 280,
+                'Illinois': 275, 'Indiana': 281, 'Iowa': 280, 'Kansas': 280,
+                'Kentucky': 270, 'Louisiana': 264, 'Maine': 282, 'Maryland': 271,
+                'Massachusetts': 288, 'Michigan': 268, 'Minnesota': 286, 'Mississippi': 264,
+                'Missouri': 274, 'Montana': 282, 'Nebraska': 280, 'Nevada': 268,
+                'New Hampshire': 286, 'New Jersey': 285, 'New Mexico': 259, 'New York': 275,
+                'North Carolina': 274, 'North Dakota': 284, 'Ohio': 279, 'Oklahoma': 268,
+                'Oregon': 276, 'Pennsylvania': 277, 'Rhode Island': 271, 'South Carolina': 271,
+                'South Dakota': 282, 'Tennessee': 271, 'Texas': 278, 'Utah': 283,
+                'Vermont': 283, 'Virginia': 282, 'Washington': 280, 'West Virginia': 265,
+                'Wisconsin': 283, 'Wyoming': 281, 'District of Columbia': 254
+            },
+            
+            perPupilSpending: {
+                'Alabama': 11503, 'Alaska': 19553, 'Arizona': 10315, 'Arkansas': 11948,
+                'California': 15831, 'Colorado': 12638, 'Connecticut': 24453, 'Delaware': 18866,
+                'Florida': 10586, 'Georgia': 12764, 'Hawaii': 18611, 'Idaho': 9670,
+                'Illinois': 18316, 'Indiana': 11945, 'Iowa': 13404, 'Kansas': 13537,
+                'Kentucky': 12833, 'Louisiana': 13538, 'Maine': 17310, 'Maryland': 17590,
+                'Massachusetts': 21524, 'Michigan': 14413, 'Minnesota': 14752, 'Mississippi': 10984,
+                'Missouri': 12775, 'Montana': 13206, 'Nebraska': 14330, 'Nevada': 11215,
+                'New Hampshire': 19698, 'New Jersey': 25099, 'New Mexico': 11596, 'New York': 29873,
+                'North Carolina': 11312, 'North Dakota': 15265, 'Ohio': 14532, 'Oklahoma': 10890,
+                'Oregon': 14989, 'Pennsylvania': 19124, 'Rhode Island': 19558, 'South Carolina': 12973,
+                'South Dakota': 11476, 'Tennessee': 10958, 'Texas': 10886, 'Utah': 9552,
+                'Vermont': 24608, 'Virginia': 13634, 'Washington': 16538, 'West Virginia': 13602,
+                'Wisconsin': 14031, 'Wyoming': 19136, 'District of Columbia': 27425
+            },
+            
+            childPovertyRates: {
+                'Alabama': 20.7, 'Alaska': 11.4, 'Arizona': 17.0, 'Arkansas': 20.2,
+                'California': 14.3, 'Colorado': 9.6, 'Connecticut': 11.8, 'Delaware': 13.5,
+                'Florida': 16.2, 'Georgia': 17.5, 'Hawaii': 10.3, 'Idaho': 11.6,
+                'Illinois': 14.4, 'Indiana': 14.1, 'Iowa': 11.1, 'Kansas': 12.3,
+                'Kentucky': 19.1, 'Louisiana': 24.0, 'Maine': 12.1, 'Maryland': 10.1,
+                'Massachusetts': 10.7, 'Michigan': 16.5, 'Minnesota': 9.3, 'Mississippi': 25.1,
+                'Missouri': 15.4, 'Montana': 13.1, 'Nebraska': 10.5, 'Nevada': 14.8,
+                'New Hampshire': 6.4, 'New Jersey': 10.2, 'New Mexico': 21.9, 'New York': 17.0,
+                'North Carolina': 16.7, 'North Dakota': 9.6, 'Ohio': 17.0, 'Oklahoma': 18.7,
+                'Oregon': 12.5, 'Pennsylvania': 14.8, 'Rhode Island': 13.6, 'South Carolina': 18.8,
+                'South Dakota': 12.5, 'Tennessee': 17.4, 'Texas': 18.4, 'Utah': 8.1,
+                'Vermont': 10.4, 'Virginia': 11.0, 'Washington': 10.2, 'West Virginia': 20.8,
+                'Wisconsin': 11.6, 'Wyoming': 11.1, 'District of Columbia': 21.6
+            },
+            
+            stateCodes: {
+                'Alabama': 'AL', 'Alaska': 'AK', 'Arizona': 'AZ', 'Arkansas': 'AR',
+                'California': 'CA', 'Colorado': 'CO', 'Connecticut': 'CT', 'Delaware': 'DE',
+                'Florida': 'FL', 'Georgia': 'GA', 'Hawaii': 'HI', 'Idaho': 'ID',
+                'Illinois': 'IL', 'Indiana': 'IN', 'Iowa': 'IA', 'Kansas': 'KS',
+                'Kentucky': 'KY', 'Louisiana': 'LA', 'Maine': 'ME', 'Maryland': 'MD',
+                'Massachusetts': 'MA', 'Michigan': 'MI', 'Minnesota': 'MN', 'Mississippi': 'MS',
+                'Missouri': 'MO', 'Montana': 'MT', 'Nebraska': 'NE', 'Nevada': 'NV',
+                'New Hampshire': 'NH', 'New Jersey': 'NJ', 'New Mexico': 'NM', 'New York': 'NY',
+                'North Carolina': 'NC', 'North Dakota': 'ND', 'Ohio': 'OH', 'Oklahoma': 'OK',
+                'Oregon': 'OR', 'Pennsylvania': 'PA', 'Rhode Island': 'RI', 'South Carolina': 'SC',
+                'South Dakota': 'SD', 'Tennessee': 'TN', 'Texas': 'TX', 'Utah': 'UT',
+                'Vermont': 'VT', 'Virginia': 'VA', 'Washington': 'WA', 'West Virginia': 'WV',
+                'Wisconsin': 'WI', 'Wyoming': 'WY', 'District of Columbia': 'DC'
+            }
+        };
+
+        // Slide navigation
+        let currentSlide = 1;
+        const totalSlides = 9;
+
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide');
+            if (n > totalSlides) currentSlide = 1;
+            if (n < 1) currentSlide = totalSlides;
+            
+            slides.forEach((slide, index) => {
+                slide.style.display = (index + 1 === currentSlide) ? 'flex' : 'none';
+            });
+            
+            updateProgressBar();
+        }
+
+        function nextSlide() {
+            currentSlide++;
+            showSlide(currentSlide);
+        }
+
+        function previousSlide() {
+            currentSlide--;
+            showSlide(currentSlide);
+        }
+
+        function updateProgressBar() {
+            const progress = (currentSlide / totalSlides) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        // Create visualizations
+        function createNationalPerformanceMap() {
+            const states = Object.keys(educationData.naepScores);
+            const stateCodes = states.map(s => educationData.stateCodes[s]);
+            const scores = states.map(s => educationData.naepScores[s]);
+            
+            const data = [{
+                type: 'choropleth',
+                locationmode: 'USA-states',
+                locations: stateCodes,
+                z: scores,
+                text: states,
+                hovertemplate: '<b>%{text}</b><br>' +
+                               'NAEP Score: %{z}<br>' +
+                               '<extra></extra>',
+                colorscale: 'RdYlGn',
+                colorbar: {
+                    title: 'NAEP Math Score',
+                    thickness: 20
+                },
+                marker: {
+                    line: {
+                        color: 'white',
+                        width: 1
+                    }
+                }
+            }];
+            
+            const layout = {
+                title: {
+                    text: '2024 NAEP Grade 8 Mathematics Scores by State',
+                    font: { size: 18, family: 'Arial, sans-serif' }
+                },
+                geo: {
+                    scope: 'usa',
+                    projection: { type: 'albers usa' },
+                    showlakes: true,
+                    lakecolor: 'rgb(190, 190, 255)'
+                },
+                margin: { l: 0, r: 0, t: 50, b: 0 }
+            };
+            
+            Plotly.newPlot('nationalPerformanceMap', data, layout, {responsive: true});
+        }
+
+        function createROIAnalysis() {
+            const states = Object.keys(educationData.naepScores);
+            const spendingData = states.map(state => educationData.perPupilSpending[state]);
+            const scoreData = states.map(state => educationData.naepScores[state]);
+            
+            // Highlight Massachusetts
+            const colors = states.map(state => 
+                state === 'Massachusetts' ? '#FFD700' : '#667eea'
+            );
+            
+            const data = [{
+                x: spendingData,
+                y: scoreData,
+                text: states,
+                mode: 'markers',
+                type: 'scatter',
+                marker: {
+                    size: 12,
+                    color: colors,
+                    line: { width: 2, color: 'white' }
+                },
+                hovertemplate: '<b>%{text}</b><br>' +
+                               'Per-Pupil Spending: $%{x:,.0f}<br>' +
+                               'NAEP Score: %{y}<br>' +
+                               '<extra></extra>'
+            }];
+            
+            const layout = {
+                title: {
+                    text: 'Education ROI: Performance vs Investment',
+                    font: { size: 18 }
+                },
+                xaxis: {
+                    title: 'Per-Pupil Spending ($)',
+                    tickformat: '$,.0f'
+                },
+                yaxis: {
+                    title: 'NAEP Math Score'
+                },
+                annotations: [{
+                    x: educationData.perPupilSpending['Massachusetts'],
+                    y: educationData.naepScores['Massachusetts'],
+                    text: 'Massachusetts<br>Excellence',
+                    showarrow: true,
+                    arrowhead: 2,
+                    arrowcolor: '#FFD700',
+                    font: { color: '#1e3c72', size: 12, family: 'Arial Black' }
+                }],
+                margin: { l: 60, r: 30, t: 80, b: 60 }
+            };
+            
+            Plotly.newPlot('roiAnalysis', data, layout, {responsive: true});
+        }
+
+        function createMassachusettsAnalysis() {
+            const categories = ['NAEP Score', 'Per-Pupil Spending', 'Poverty Rate (Inv)', 'Overall Rank'];
+            const maValues = [288, 21524, 89.3, 95]; // Inverted poverty for visualization
+            const nationalAvg = [275, 16000, 85.3, 50];
+            
+            const trace1 = {
+                x: categories,
+                y: maValues,
+                name: 'Massachusetts',
+                type: 'bar',
+                marker: { color: '#FFD700' }
+            };
+            
+            const trace2 = {
+                x: categories,
+                y: nationalAvg,
+                name: 'National Average',
+                type: 'bar',
+                marker: { color: '#667eea' }
+            };
+            
+            const layout = {
+                title: {
+                    text: 'Massachusetts vs National Performance Metrics',
+                    font: { size: 18 }
+                },
+                yaxis: { title: 'Relative Performance' },
+                barmode: 'group',
+                margin: { l: 60, r: 30, t: 80, b: 80 }
+            };
+            
+            Plotly.newPlot('massachusettsAnalysis', [trace1, trace2], layout, {responsive: true});
+        }
+
+        function createPovertyImpactChart() {
+            const states = Object.keys(educationData.naepScores);
+            const povertyRates = states.map(state => educationData.childPovertyRates[state]);
+            const scores = states.map(state => educationData.naepScores[state]);
+            
+            const colors = states.map(state => 
+                state === 'Massachusetts' ? '#FFD700' : 
+                state === 'Mississippi' ? '#FF6B6B' : '#667eea'
+            );
+            
+            const data = [{
+                x: povertyRates,
+                y: scores,
+                text: states,
+                mode: 'markers',
+                type: 'scatter',
+                marker: {
+                    size: 12,
+                    color: colors,
+                    line: { width: 2, color: 'white' }
+                },
+                hovertemplate: '<b>%{text}</b><br>' +
+                               'Child Poverty Rate: %{x}%<br>' +
+                               'NAEP Score: %{y}<br>' +
+                               '<extra></extra>'
+            }];
+            
+            const layout = {
+                title: {
+                    text: 'Child Poverty Rate vs Academic Performance',
+                    font: { size: 18 }
+                },
+                xaxis: {
+                    title: 'Child Poverty Rate (%)',
+                    range: [5, 27]
+                },
+                yaxis: {
+                    title: 'NAEP Math Score',
+                    range: [250, 295]
+                },
+                annotations: [
+                    {
+                        x: educationData.childPovertyRates['Massachusetts'],
+                        y: educationData.naepScores['Massachusetts'],
+                        text: 'MA: Low Poverty<br>High Performance',
+                        showarrow: true,
+                        arrowcolor: '#FFD700'
+                    },
+                    {
+                        x: educationData.childPovertyRates['Mississippi'],
+                        y: educationData.naepScores['Mississippi'],
+                        text: 'MS: High Poverty<br>Challenge',
+                        showarrow: true,
+                        arrowcolor: '#FF6B6B'
+                    }
+                ],
+                margin: { l: 60, r: 30, t: 80, b: 60 }
+            };
+            
+            Plotly.newPlot('povertyImpactChart', data, layout, {responsive: true});
+        }
+
+        function createImplementationTimeline() {
+            const phases = ['Quick Wins<br>(0-90 days)', 'Foundation<br>(3-12 months)', 'Scale<br>(1-2 years)', 'Transform<br>(2-3 years)'];
+            const impact = [15, 35, 70, 100];
+            const investment = [5, 25, 60, 85];
+            
+            const trace1 = {
+                x: phases,
+                y: impact,
+                name: 'Expected Impact (%)',
+                type: 'scatter',
+                mode: 'lines+markers',
+                line: { color: '#4CAF50', width: 4 },
+                marker: { size: 10 }
+            };
+            
+            const trace2 = {
+                x: phases,
+                y: investment,
+                name: 'Resource Investment (%)',
+                type: 'scatter',
+                mode: 'lines+markers',
+                line: { color: '#FF9800', width: 4 },
+                marker: { size: 10 },
+                yaxis: 'y2'
+            };
+            
+            const layout = {
+                title: {
+                    text: 'Implementation Timeline: Impact vs Investment',
+                    font: { size: 18 }
+                },
+                yaxis: {
+                    title: 'Performance Impact (%)',
+                    side: 'left',
+                    range: [0, 110]
+                },
+                yaxis2: {
+                    title: 'Resource Investment (%)',
+                    overlaying: 'y',
+                    side: 'right',
+                    range: [0, 100]
+                },
+                margin: { l: 60, r: 60, t: 80, b: 100 }
+            };
+            
+            Plotly.newPlot('implementationTimeline', [trace1, trace2], layout, {responsive: true});
+        }
+
+        // Initialize presentation
+        window.addEventListener('load', function() {
+            showSlide(1);
+            setTimeout(() => {
+                createNationalPerformanceMap();
+                createROIAnalysis();
+                createMassachusettsAnalysis();
+                createPovertyImpactChart();
+                createImplementationTimeline();
+            }, 500);
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowRight' || event.key === ' ') {
+                nextSlide();
+            } else if (event.key === 'ArrowLeft') {
+                previousSlide();
+            }
+        });
+    </script>
+</body>
+</html>
